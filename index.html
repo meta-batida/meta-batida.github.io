@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Meta Batida: dashboards de vendas, planilhas de metas e comissões e relatórios automáticos para lojas e pequenas redes. Planilhas prontas em Excel.">
+<title>Meta Batida Planilhas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: ledger-like page — left-aligned columns, a live "fechamento do mês" board as the hero, tables over cards */
+:root{
+  --paper:#F2F4F1; --panel:#FFFFFF; --ink:#16231F; --muted:#56655F; --line:#D5DCD7;
+  --accent:#0F6B54; --accent-soft:#DDEDE6; --warn:#B4532A; --good:#1E7D4E;
+  --display:"Familjen Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --body:"Newsreader", Georgia, "Times New Roman", serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0F1513; --panel:#16201D; --ink:#E6ECE8; --muted:#9AAAA3; --line:#2A3833;
+  --accent:#4FC39E; --accent-soft:#1B3A30; --warn:#E08A5E; --good:#5FCB8F; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0F1513; --panel:#16201D; --ink:#E6ECE8; --muted:#9AAAA3; --line:#2A3833;
+  --accent:#4FC39E; --accent-soft:#1B3A30; --warn:#E08A5E; --good:#5FCB8F; color-scheme:dark}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:18px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);line-height:1.1;text-wrap:balance;margin:0}
+.eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+nav{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding-block:22px;border-bottom:1px solid var(--line)}
+nav .brand{font-family:var(--display);font-weight:700;font-size:19px}
+nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0;font-family:var(--display);font-size:15px}
+nav a{color:var(--ink);text-decoration:none}
+nav a:hover{color:var(--accent)}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding-block:56px 64px}
+.hero > *{min-width:0}
+.hero h1{font-size:clamp(36px,5.2vw,60px);font-weight:700;letter-spacing:-.02em;margin-top:14px}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero p{color:var(--muted);max-width:52ch;margin:20px 0 28px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{font-family:var(--display);font-weight:600;font-size:16px;padding:12px 20px;border-radius:6px;text-decoration:none;border:1.5px solid var(--accent)}
+.btn.primary{background:var(--accent);color:var(--paper)}
+.btn.ghost{color:var(--accent)}
+.board{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px;font-family:var(--mono);font-size:14px;box-shadow:0 18px 40px -28px rgba(0,0,0,.35)}
+.board-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin-bottom:14px}
+.board-head b{font-family:var(--display);font-size:17px}
+.board-head span{color:var(--muted);font-size:12.5px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.kpi{border:1px solid var(--line);border-radius:6px;padding:10px}
+.kpi small{display:block;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em}
+.kpi strong{font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+.rows{display:grid;gap:9px}
+.row{display:grid;grid-template-columns:22px 1fr 1.4fr 62px;gap:10px;align-items:center;font-variant-numeric:tabular-nums}
+.row .pos{color:var(--muted)}
+.bar{height:9px;background:var(--accent-soft);border-radius:5px;position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:5px;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+.bar.low i{background:var(--warn)}
+.row .pct{text-align:right}
+.row .pct.low{color:var(--warn)}
+.meta-line{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.5}
+section{padding-block:64px;border-top:1px solid var(--line)}
+.sec-head{display:grid;grid-template-columns:1fr 1.4fr;gap:40px;margin-bottom:32px}
+.sec-head > *{min-width:0}
+.sec-head h2{font-size:clamp(28px,3.6vw,40px);font-weight:700;letter-spacing:-.015em;margin-top:10px}
+.sec-head p{color:var(--muted);margin:0;align-self:end;max-width:58ch}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:17px}
+th{font-family:var(--mono);font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;font-weight:500;padding:10px 12px;border-bottom:1.5px solid var(--ink)}
+td{padding:16px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+td:first-child{font-family:var(--display);font-weight:600;font-size:18px}
+td .d{display:block;font-family:var(--body);font-weight:400;font-size:16px;color:var(--muted);margin-top:3px}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:15px}
+.templates{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.tpl h3{font-size:21px}
+.tpl p{margin:0;color:var(--muted);font-size:16.5px}
+.tpl .price{font-family:var(--mono);font-size:15px;margin-top:auto;padding-top:10px;border-top:1px dashed var(--line);display:flex;justify-content:space-between}
+.sheet{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.sheet div{display:grid;grid-template-columns:1.6fr 1fr 1fr;border-top:1px solid var(--line)}
+.sheet div:first-child{border-top:0;background:var(--accent-soft);color:var(--ink);font-weight:500}
+.sheet span{padding:5px 7px;border-left:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet span:first-child{border-left:0}
+.sheet .g{color:var(--good)} .sheet .r{color:var(--warn)}
+.bundle{margin-top:20px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:18px 20px;border:1.5px dashed var(--accent);border-radius:10px}
+.bundle b{font-family:var(--display);font-size:19px}
+.bundle span{font-family:var(--mono)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;list-style:none;padding:0;margin:0;counter-reset:s}
+.steps li{counter-increment:s;min-width:0}
+.steps li::before{content:"Etapa " counter(s);display:block;font-family:var(--mono);font-size:12.5px;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;padding-bottom:10px;margin-bottom:12px;border-bottom:1.5px solid var(--ink)}
+.steps h3{font-size:19px;margin-bottom:6px}
+.steps p{margin:0;color:var(--muted);font-size:16.5px}
+.about{display:grid;grid-template-columns:1fr 1.4fr;gap:40px}
+.about > *{min-width:0}
+.facts{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+.facts li{display:grid;grid-template-columns:150px 1fr;gap:14px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.facts b{font-family:var(--mono);font-weight:500;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding-top:3px}
+.contact{background:var(--ink);color:var(--paper);border-radius:12px;padding:40px;display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:center}
+.contact > *{min-width:0}
+.contact h2{font-size:clamp(28px,3.6vw,40px)}
+.contact p{opacity:.8;margin:12px 0 0}
+.copybox{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-family:var(--mono);font-size:16px}
+.copybox code{background:rgba(127,127,127,.18);padding:10px 12px;border-radius:6px;user-select:all;word-break:break-all}
+.copybox button{font-family:var(--display);font-weight:600;font-size:15px;padding:10px 16px;border-radius:6px;border:0;background:var(--accent);color:var(--paper);cursor:pointer}
+.plats{margin-top:14px;font-size:15.5px;opacity:.85}
+.plats a{color:var(--paper)}
+footer{padding-block:30px;color:var(--muted);font-family:var(--mono);font-size:12.5px}
+@media (max-width:860px){
+  .hero,.sec-head,.about,.contact{grid-template-columns:1fr;gap:24px}
+  .templates{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr 1fr}
+  .contact{padding:28px}
+}
+@media (max-width:520px){
+  body{font-size:17px}
+  nav ul{gap:14px;font-size:14px}
+  .steps{grid-template-columns:1fr}
+  .facts li{grid-template-columns:1fr;gap:2px}
+  .kpis{grid-template-columns:1fr 1fr 1fr}
+  .kpi strong{font-size:18px}
+  .row{grid-template-columns:18px 1fr 1fr 52px;gap:8px}
+}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <span class="brand">Meta Batida</span>
+    <ul>
+      <li><a href="#servicos">Serviços</a></li>
+      <li><a href="#planilhas">Planilhas</a></li>
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#contato">Contato</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <span class="eyebrow">Dados comerciais para o varejo</span>
+      <h1>Sua equipe sabe quanto falta para <em>bater a meta</em> hoje?</h1>
+      <p>Crio dashboards de vendas, planilhas de metas e comissões e relatórios automáticos para lojas e pequenas redes. Você lança os números e enxerga o mês inteiro em uma tela.</p>
+      <div class="btns">
+        <a class="btn primary" href="#contato">Pedir orçamento</a>
+        <a class="btn ghost" href="#planilhas">Ver planilhas prontas</a>
+      </div>
+    </div>
+
+    <div class="board" aria-label="Exemplo de dashboard de fechamento do mês com dados fictícios">
+      <div class="board-head"><b>Fechamento parcial · dia 20 de 31</b><span>dados fictícios</span></div>
+      <div class="kpis">
+        <div class="kpi"><small>Meta</small><strong>R$ 1,97 mi</strong></div>
+        <div class="kpi"><small>Realizado</small><strong>R$ 1,29 mi</strong></div>
+        <div class="kpi"><small>Projeção</small><strong>101,4%</strong></div>
+      </div>
+      <div class="rows" id="rows"></div>
+    </div>
+  </header>
+</div>
+
+<section id="servicos">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow">Serviços</span><h2>O que eu entrego</h2></div>
+      <p>Cada entrega vem com explicação de uso e ajustes inclusos. Os valores são o ponto de partida; o preço final depende do volume de dados e de indicadores.</p>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Serviço</th><th>Prazo médio</th><th>A partir de</th></tr></thead>
+        <tbody>
+          <tr><td>Dashboard de vendas em Excel<span class="d">Meta x realizado por loja ou vendedor, evolução diária, ranking e projeção de fechamento.</span></td><td class="num">4 dias</td><td class="num">R$ 250</td></tr>
+          <tr><td>Dashboard em Power BI<span class="d">Planilha de entrada simples e painel que atualiza com um clique, com treinamento da equipe.</span></td><td class="num">5 a 7 dias</td><td class="num">R$ 400</td></tr>
+          <tr><td>Planilha de metas e comissões<span class="d">Faixas de atingimento, comissão, bônus e total a pagar calculados automaticamente.</span></td><td class="num">3 dias</td><td class="num">R$ 200</td></tr>
+          <tr><td>Automação de relatórios com Python<span class="d">O relatório que hoje leva horas passa a sair pronto a partir das planilhas que você já tem.</span></td><td class="num">5 dias</td><td class="num">R$ 350</td></tr>
+          <tr><td>Estrutura de metas e remuneração variável<span class="d">Para pequenas redes: como definir metas por loja, regras de comissão e campanhas de incentivo.</span></td><td class="num">2 semanas</td><td class="num">R$ 1.000</td></tr>
+          <tr><td>Organização financeira para comércio<span class="d">Fluxo de caixa, capital de giro e regra de reposição de estoque para lojas de bairro.</span></td><td class="num">10 dias</td><td class="num">R$ 500</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="planilhas">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow">Planilhas prontas</span><h2>Baixe e use hoje</h2></div>
+      <p>Modelos em Excel com fórmulas prontas e instruções. Você troca os dados de exemplo pelos seus e a planilha calcula o resto.</p>
+    </div>
+    <div class="templates">
+      <article class="tpl">
+        <div class="sheet" aria-hidden="true">
+          <div><span>Vendedor</span><span>Ating.</span><span>Total</span></div>
+          <div><span>Carla D.</span><span class="g">122,8%</span><span>R$ 3.094</span></div>
+          <div><span>Ana S.</span><span class="g">115,6%</span><span>R$ 2.712</span></div>
+          <div><span>Bruno L.</span><span class="r">89,0%</span><span>R$ 712</span></div>
+        </div>
+        <h3>Comissão e Metas para Vendedores</h3>
+        <p>Seis faixas de atingimento com comissão e bônus, ranking automático e resumo da equipe com custo da comissão sobre a venda.</p>
+        <div class="price"><span>Excel · até 30 vendedores</span><b>R$ 47</b></div>
+      </article>
+      <article class="tpl">
+        <div class="sheet" aria-hidden="true">
+          <div><span>Loja</span><span>Ating.</span><span>Projeção</span></div>
+          <div><span>Loja Sul</span><span class="g">66,9%</span><span class="g">103,7%</span></div>
+          <div><span>Loja Norte</span><span>63,0%</span><span class="r">97,6%</span></div>
+          <div><span>Loja Centro</span><span>61,6%</span><span class="r">95,5%</span></div>
+        </div>
+        <h3>Dashboard de Vendas para Lojas</h3>
+        <p>Venda diária por loja, meta x realizado, projeção de fechamento do mês, ranking e gráficos prontos.</p>
+        <div class="price"><span>Excel · até 15 lojas</span><b>R$ 57</b></div>
+      </article>
+      <article class="tpl">
+        <div class="sheet" aria-hidden="true">
+          <div><span>Campanha</span><span>Uso verba</span><span>Status</span></div>
+          <div><span>Vitaminas</span><span>41,5%</span><span class="g">Em andamento</span></div>
+          <div><span>Dermo</span><span>49,6%</span><span class="g">Em andamento</span></div>
+          <div><span>Genéricos</span><span class="r">66,4%</span><span class="g">Em andamento</span></div>
+        </div>
+        <h3>Controle de Campanhas de Incentivo</h3>
+        <p>Campanhas com indústrias parceiras, meta mínima por participante, apuração de prêmios e alerta quando a verba estoura.</p>
+        <div class="price"><span>Excel · até 20 campanhas</span><b>R$ 37</b></div>
+      </article>
+    </div>
+    <div class="bundle"><b>Kit Gestão Comercial: as três planilhas juntas</b><span>R$ 97 · economize R$ 44</span></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="eyebrow">Como funciona</span><h2>Do pedido à entrega</h2></div>
+      <p>Um processo curto, com você aprovando cada passo.</p>
+    </div>
+    <ol class="steps">
+      <li><h3>Conversa rápida</h3><p>Você conta quais números acompanha e como os dados chegam hoje.</p></li>
+      <li><h3>Proposta e prazo</h3><p>Envio o escopo, o layout e o valor fechado antes de começar.</p></li>
+      <li><h3>Construção</h3><p>Monto a planilha ou o painel com os seus dados e envio uma prévia.</p></li>
+      <li><h3>Entrega e treino</h3><p>Explico como atualizar no dia a dia e faço os ajustes que faltarem.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="sobre">
+  <div class="wrap about">
+    <div><span class="eyebrow">Sobre</span><h2 style="font-size:clamp(28px,3.6vw,40px);margin-top:10px">Quem faz as planilhas</h2></div>
+    <div>
+      <p style="margin-top:0">Trabalho com performance comercial no varejo, acompanhando metas, indicadores e campanhas de incentivo de redes com mais de 100 lojas em três estados. Minha especialidade é transformar planilhas soltas em ferramentas que o gestor abre de manhã e entende em um minuto.</p>
+      <ul class="facts">
+        <li><b>Formação</b><span>Administração · MBA em Gestão de Projetos (PMI) · cursando Análise e Desenvolvimento de Sistemas</span></li>
+        <li><b>Ferramentas</b><span>Excel avançado, Power BI, Python, Google Planilhas</span></li>
+        <li><b>Atendo</b><span>Porto Velho/RO e todo o Brasil, de forma remota</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="contato" style="border-top:0;padding-top:16px">
+  <div class="wrap">
+    <div class="contact">
+      <div>
+        <h2>Vamos organizar seus números?</h2>
+        <p>Mande uma mensagem contando o que você precisa acompanhar. Respondo em até um dia útil com uma proposta.</p>
+      </div>
+      <div>
+        <div class="copybox"><code id="mail">leleastronomy@gmail.com</code><button type="button" id="copy">Copiar e-mail</button></div>
+        <p class="plats">Também atendo pela <a href="https://www.99freelas.com.br" target="_blank" rel="noopener">99Freelas</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><footer>© 2026 Meta Batida · Exemplos com dados fictícios</footer></div>
+
+<script>
+const lojas=[["Loja Shopping",0.69,1.05],["Loja Sul",0.669,1.037],["Loja Avenida",0.655,1.015],["Loja Bairro Novo",0.648,1.004],["Loja Norte",0.63,0.976],["Loja Centro",0.616,0.955]];
+const rows=document.getElementById("rows");
+const metaDia=20/31;
+lojas.forEach(([n,a,p],i)=>{
+  const low=p<1;
+  const r=document.createElement("div"); r.className="row";
+  r.innerHTML=`<span class="pos">${i+1}</span><span>${n}</span><span class="bar${low?" low":""}"><i style="width:${(a*100).toFixed(1)}%"></i><span class="meta-line" style="left:${(metaDia*100).toFixed(1)}%"></span></span><span class="pct${low?" low":""}">${(p*100).toFixed(1).replace(".",",")}%</span>`;
+  rows.appendChild(r);
+});
+document.getElementById("copy").addEventListener("click",async e=>{
+  const t=document.getElementById("mail").textContent;
+  try{await navigator.clipboard.writeText(t);e.target.textContent="Copiado";}
+  catch(_){const s=window.getSelection(),rg=document.createRange();rg.selectNodeContents(document.getElementById("mail"));s.removeAllRanges();s.addRange(rg);e.target.textContent="Selecionado";}
+  setTimeout(()=>e.target.textContent="Copiar e-mail",1800);
+});
+</script>
+</body>
+</html>
